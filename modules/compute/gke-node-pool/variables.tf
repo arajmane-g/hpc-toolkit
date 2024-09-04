@@ -318,31 +318,27 @@ variable "additional_networks" {
   }))
 }
 
-variable "reservation_type" {
-  description = "Type of reservation to consume"
-  type        = string
-  default     = "NO_RESERVATION"
-
-  validation {
-    condition     = contains(["NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"], var.reservation_type)
-    error_message = "Accepted values are: {NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION}"
-  }
-}
-
-variable "specific_reservation" {
+variable "reservation_affinity" {
   description = <<-EOT
-  Reservation resources to consume when targeting SPECIFIC_RESERVATION.
-  Specify `compute.googleapis.com/reservation-name` as the key and the list of reservation names as the value.
+  Reservation resources to consume. When targeting SPECIFIC_RESERVATION, the list of specific_reservations needs be specified.
   It is assumed that the specified reservations exist and they have available capacity.
+  For a shared reservation, specify the project_id as well in which it was created.
   To create reservations refer to https://cloud.google.com/compute/docs/instances/reservations-single-project and https://cloud.google.com/compute/docs/instances/reservations-shared
   EOT
   type = object({
-    key    = string
-    values = list(string)
+    consume_reservation_type = string
+    specific_reservations = optional(list(object({
+      name    = string
+      project = optional(string)
+    })))
   })
   default = {
-    key    = null
-    values = null
+    consume_reservation_type = "NO_RESERVATION"
+    specific_reservations    = []
+  }
+  validation {
+    condition     = contains(["NO_RESERVATION", "ANY_RESERVATION", "SPECIFIC_RESERVATION"], var.reservation_affinity.consume_reservation_type)
+    error_message = "Accepted values are: {NO_RESERVATION, ANY_RESERVATION, SPECIFIC_RESERVATION}"
   }
 }
 
