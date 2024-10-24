@@ -31,7 +31,7 @@ locals {
   }] : []
 
   autoscale_set   = var.autoscaling_total_min_nodes != 0 || var.autoscaling_total_max_nodes != 1000
-  static_node_set = var.static_node_count != null  
+  static_node_set = var.static_node_count != null
 }
 
 data "google_compute_default_service_account" "default_sa" {
